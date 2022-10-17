@@ -1,0 +1,23 @@
+{
+    "name": "drewlabs/libman",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Drewlabs\\Libman\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "azandrew-sidoine",
+            "email": "asmyns.platonnas29@gmail.com"
+        }
+    ],
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.2",
+        "symfony/process": "^6.1",
+        "composer-runtime-api": "^2.0"
+    }
+}
