@@ -23,7 +23,7 @@ interface LibraryConfigInterface
     /**
      * Returns the class path of the library
      *
-     * @return LibraryFactoryClassInterface|string
+     * @return LibraryFactoryInterface|string
      */
     public function getFactoryClass();
 

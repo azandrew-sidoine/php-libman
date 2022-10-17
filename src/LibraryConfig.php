@@ -7,8 +7,8 @@ use Drewlabs\Libman\Traits\LibraryConfig as TraitsLibraryConfig;
 
 /**
  *
- * @method \Drewlabs\Libman\LibraryConfig static new(string $name, $type)
- * @method \Drewlabs\Libman\LibraryConfig static new(string $name, string $type, ?string $package, ?string $factory)
+ * @method static \Drewlabs\Libman\LibraryConfig new(string $name, $type)
+ * @method static \Drewlabs\Libman\LibraryConfig new(string $name, string $type, ?string $package, ?string $factory)
  *
  * @package Drewlabs\Libman
  */

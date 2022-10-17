@@ -3,7 +3,7 @@
 namespace Drewlabs\Libman\Traits;
 
 use Drewlabs\Libman\Composer;
-use Drewlabs\Libman\Contracts\LibraryFactoryClassInterface;
+use Drewlabs\Libman\Contracts\LibraryFactoryInterface;
 use ReflectionException;
 use RuntimeException;
 
@@ -134,10 +134,10 @@ trait LibraryConfig
     public function getFactoryClass()
     {
         if ((null === ($factory = $this->resolveFactoryClass())) || !class_exists($factory)) {
-            throw new RuntimeException('Expected instance of ' . LibraryFactoryClassInterface::class . ' got ' . $factory);
+            throw new RuntimeException('Expected instance of ' . LibraryFactoryInterface::class . ' got ' . $factory);
         }
-        if (!(is_a($factory, LibraryFactoryClassInterface::class, true))) {
-            throw new RuntimeException('Expected instance of ' . LibraryFactoryClassInterface::class . ' got ' . $factory);
+        if (!(is_a($factory, LibraryFactoryInterface::class, true))) {
+            throw new RuntimeException('Expected instance of ' . LibraryFactoryInterface::class . ' got ' . $factory);
         }
         return $factory;
     }
@@ -249,9 +249,12 @@ trait LibraryConfig
         if ($this->factory && class_exists($this->factory)) {
             return $this->factory;
         }
-        if ((strtolower($this->type()) === 'composer') && (null !== $this->getPackage())) {
-            return Composer::resolveClassPath($this->getPackage(), $this->factory ?? $this->camelize($this->name()));
+        $factoryClass = null;
+        if ((strtolower($this->getType()) === 'composer') && (null !== $this->getPackage())) {
+            // We working with composer based library configuration, we assume by default `Factory.php` is the
+            // class used to create the library instance if no factory class is provided
+            $factoryClass =  Composer::resolveClassPath($this->getPackage(), $this->factory ?? 'Factory');
         }
-        return sprintf("%s\\%s", $this->defaultNamespace(), $this->camelize($this->name()));
+        return $factoryClass ?? sprintf("%s\\%s", $this->defaultNamespace(), $this->camelize($this->name()));
     }
 }

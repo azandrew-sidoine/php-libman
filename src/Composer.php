@@ -46,11 +46,16 @@ class Composer
      * 
      * @param mixed $package 
      * @param string|null $version 
-     * @return Generator<int, string, mixed, void> 
+     * @return mixed 
      * @throws RuntimeException 
      */
-    public static function install($package, string $version = null)
-    {
+    public static function install(
+        $package,
+        string $version = null,
+        \Closure $beforeCallBack = null,
+        \Closure $completeCallback = null,
+        \Closure $errorCallback = null
+    ) {
         if (null === static::$vendorDir) {
             throw new \RuntimeException("Vendor directory configuration must not be null.");
         }
@@ -70,10 +75,20 @@ class Composer
         $commands = !@is_executable(static::$binaryPath) ? [static::$binaryPath, 'require', $package, '--optimize-autoloader',  '--no-ansi'] : ['php', static::$binaryPath, 'require', $package, '--optimize-autoloader',  '--no-ansi'];
         $process = new Process($commands, $projectDir);
         $process->start();
+        if ($beforeCallBack) {
+            $beforeCallBack();
+        }
         while ($process->isRunning()) {
             // waiting for process to finish
         }
-        yield $process->getOutput();
+        if ($process->isSuccessful() && $completeCallback) {
+            return $completeCallback($process->getOutput());
+        }
+
+        if (!$process->isSuccessful() && $errorCallback) {
+            return $errorCallback($process->getOutput());
+        }
+        return $process->getOutput();
     }
 
     /**
@@ -81,13 +96,16 @@ class Composer
      * 
      * @param string $package 
      * @param string $relativeClassPath 
-     * @return null 
-     * @throws OutOfBoundsException
+     * @return string|null 
      * @throws RuntimeException 
      */
     public static function resolveClassPath(string $package, string $relativeClassPath)
     {
-        $packagePath = realpath(InstalledVersions::getInstallPath($package));
+        try {
+            $packagePath = realpath(InstalledVersions::getInstallPath($package));
+        } catch (OutOfBoundsException $e) {
+            return null;
+        }
         $packageComposerJson = "$packagePath" . DIRECTORY_SEPARATOR . 'composer.json';
         if (!@is_file($packageComposerJson)) {
             throw new \RuntimeException("Package $package is not a valid composer package");

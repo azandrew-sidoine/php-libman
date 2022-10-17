@@ -2,7 +2,7 @@
 
 namespace Drewlabs\Libman\Contracts;
 
-interface LibraryFactoryClassInterface
+interface LibraryFactoryInterface
 {
     /**
      * Creates a library object

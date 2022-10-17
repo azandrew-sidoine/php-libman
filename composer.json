@@ -19,6 +19,12 @@
         "php": ">=7.2",
         "symfony/process": "^6.1",
         "composer-runtime-api": "^2.0",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "drewlabs/crypt": "^0.2.3"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Drewlabs\\Libman\\Tests\\": "tests/"
+        }
     }
 }
