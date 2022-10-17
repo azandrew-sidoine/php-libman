@@ -18,6 +18,7 @@
     "require": {
         "php": ">=7.2",
         "symfony/process": "^6.1",
-        "composer-runtime-api": "^2.0"
+        "composer-runtime-api": "^2.0",
+        "phpunit/phpunit": "^9.5"
     }
 }
