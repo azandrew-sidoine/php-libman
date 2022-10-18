@@ -6,9 +6,15 @@ use Drewlabs\Libman\Composer;
 use Drewlabs\Libman\Contracts\LibraryFactoryInterface;
 use ReflectionException;
 use RuntimeException;
+use Drewlabs\Libman\Contracts\LibraryRepositoryConfigInterface;
+use Drewlabs\Libman\Utils\LibraryRepositoryConfig;
+use Drewlabs\Libman\Utils\Strings;
 
 trait LibraryConfig
 {
+
+    use ArrayableType;
+
     /**
      * Library name or label
      *
@@ -52,6 +58,20 @@ trait LibraryConfig
     private $callbacks = [];
 
     /**
+     * Repository configuration of the library
+     * 
+     * @var LibraryRepositoryConfigInterface
+     */
+    private $repository;
+
+    /**
+     * Indicates whether the repository is private or public
+     * 
+     * @var bool
+     */
+    private $private;
+
+    /**
      * The default namespace from which the library factory class must be resolved
      *
      * @var string
@@ -86,14 +106,9 @@ trait LibraryConfig
      * @return static 
      * @throws ReflectionException 
      */
-    public static function create(array $attributes) {
-        $instance = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        foreach ($attributes as $key => $value) {
-            if (property_exists($instance, $key)) {
-                $instance->{$key} = $value;
-            }
-        }
-        return $instance;
+    public static function create(array $attributes)
+    {
+        return static::fromArray($attributes);
     }
 
     /**
@@ -199,6 +214,41 @@ trait LibraryConfig
     }
 
     /**
+     * Set the repository property on the current instance
+     * 
+     * @param object|array $value 
+     * @return void 
+     */
+    public function setRepository($value)
+    {
+        $value = is_object($value) ? get_object_vars($value) : $value;
+        if (!is_array($value)) {
+            throw new \InvalidArgumentException("Expect array/object as parameter, got " . (null !== $value && is_object($value) ? get_class($value) : gettype($value)));
+        }
+        // we sure the repository is always an array
+        $isList = array_filter($value, 'is_array') === $value;
+        $this->repository = $isList ? array_map(function ($item) {
+            return LibraryRepositoryConfig::fromArray($item);
+        }, $value) : [LibraryRepositoryConfig::fromArray($value)];
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     * 
+     * @return LibraryRepositoryConfigInterface[] 
+     */
+    public function getRepository()
+    {
+        return $this->repository;
+    }
+
+    public function isPrivate()
+    {
+        return $this->private;
+    }
+
+    /**
      * Register a macro or a callable function with bindings to a given name
      *
      * @param mixed $name
@@ -222,24 +272,6 @@ trait LibraryConfig
     }
 
     /**
-     * 
-     * @param string $haystack 
-     * @param bool $firstcapital 
-     * @return mixed 
-     */
-    private function camelize(string $haystack, $firstcapital = true)
-    {
-        $replacePipe = function (string $haystack) {
-            $delimiter = '_';
-            return str_replace($delimiter, '', ucwords($haystack, $delimiter));
-        };
-        $capitalizePipe = function ($string) use ($firstcapital) {
-            return !$firstcapital ? lcfirst($string) : $string;
-        };
-        return $capitalizePipe($replacePipe($haystack));
-    }
-
-    /**
      * Resolve factory class of the given library
      * 
      * @return string 
@@ -255,6 +287,6 @@ trait LibraryConfig
             // class used to create the library instance if no factory class is provided
             $factoryClass =  Composer::resolveClassPath($this->getPackage(), $this->factory ?? 'Factory');
         }
-        return $factoryClass ?? sprintf("%s\\%s", $this->defaultNamespace(), $this->camelize($this->name()));
+        return $factoryClass ?? sprintf("%s\\%s", $this->defaultNamespace(), Strings::camelize($this->name()));
     }
 }

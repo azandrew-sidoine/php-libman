@@ -27,4 +27,20 @@ interface InstallableLibraryConfigInterface extends LibraryConfigInterface
      * @return int|null 
      */
     public function getVersion();
+
+
+    /**
+     * Returns repository configuration of the library
+     * 
+     * @return LibraryRepositoryConfigInterface|LibraryRepositoryConfigInterface[]  
+     */
+    public function getRepository();
+
+
+    /**
+     * Check if the library is a private library
+     * 
+     * @return bool 
+     */
+    public function isPrivate();
 }

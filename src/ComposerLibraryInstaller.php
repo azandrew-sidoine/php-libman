@@ -39,7 +39,7 @@ class ComposerLibraryInstaller implements LibraryInstaller
 
     public function install(InstallableLibraryConfigInterface $libraryConfig, \Closure $errorCallback = null)
     {
-        return Composer::install($libraryConfig->getPackage(), $libraryConfig->getVersion(), function () {
+        return Composer::install($libraryConfig, function () {
             $this->processListenerFor('installing');
         }, function ($value) {
             $this->processListenerFor('complete', $value);

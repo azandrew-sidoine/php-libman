@@ -9,5 +9,5 @@ interface AuthBasedLibraryConfigInterface
      *
      * @return AuthCredentialsInterface
      */
-    public function getAuthCredentials();
+    public function getAuth();
 }

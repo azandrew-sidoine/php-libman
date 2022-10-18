@@ -8,13 +8,12 @@ use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
 use Drewlabs\Libman\Contracts\LibraryConfigurationsRepositoryInterface;
 use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
 use Drewlabs\Libman\Contracts\WebServiceLibraryConfigInterface;
-use Drewlabs\Libman\Exception\ExtensionNotLoadedException;
+use Drewlabs\Libman\Exceptions\ExtensionNotLoadedException;
 use Drewlabs\Libman\LibraryConfig;
 use Drewlabs\Libman\WebserviceLibraryConfig;
 
 class InMemoryConfigurationRepository implements LibraryConfigurationsRepositoryInterface
 {
-
     /**
      * 
      * @var LibraryDefinitionsProvider
@@ -24,14 +23,12 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
     /**
      * 
      * @param LibraryDefinitionsProvider $path 
-     * @param bool $persist 
      * @return self 
      * @throws ExtensionNotLoadedException 
      */
-    public function __construct(LibraryDefinitionsProvider $provider, bool $persist = true)
+    public function __construct(LibraryDefinitionsProvider $provider)
     {
         $this->provider = $provider;
-        $this->persist = $persist;
     }
 
     public function add(LibraryConfigInterface $libraryConfig)
@@ -50,11 +47,11 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
 
         if ($libraryConfig instanceof WebServiceLibraryConfigInterface) {
             $attributes['host'] = $libraryConfig->getHost();
-            $attributes['tcp'] = $libraryConfig->getHost();
+            $attributes['service'] = 'tcp';
         }
 
         if ($libraryConfig instanceof AuthBasedLibraryConfigInterface) {
-            $auth = $libraryConfig->getAuthCredentials();
+            $auth = $libraryConfig->getAuth();
             $attributes['auth']['id'] = $auth->id();
             $attributes['auth']['secret'] = $auth->secret();
         }
@@ -70,13 +67,25 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
             if ($this->propertyIs($value, 'id', $id) || $this->propertyIs($value, 'package', $id)) {
                 return $this->createLibraryConfig($value);
             }
+            if ($this->propertyIs($value, 'name', $id)) {
+                return $this->createLibraryConfig($value);
+            }
         }
+        return null;
     }
 
-    public function selectAll()
+    public function selectAll(\Closure $predicate = null)
     {
-        foreach ($this->provider->definitions() as $value) {
-            yield $this->createLibraryConfig($value);
+        if (!is_string($predicate) && is_callable($predicate)) {
+            foreach ($this->provider->definitions() as $value) {
+                if ($predicate && $predicate((object)$value)) {
+                    yield $this->createLibraryConfig($value);
+                }
+            }
+        } else {
+            foreach ($this->provider->definitions() as $value) {
+                yield $this->createLibraryConfig($value);
+            }
         }
     }
 
@@ -102,15 +111,16 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
      */
     private function createLibraryConfig(array $libraryConfig)
     {
-        $apiType = strtolower($libraryConfig['service-type'] ?? $libraryConfig['service'] ?? 'default');
+        $apiType = strtolower($libraryConfig['service'] ?? $libraryConfig['api'] ?? 'basic');
         switch ($apiType) {
             case 'tcp':
             case 'http':
             case 'rest':
-                WebserviceLibraryConfig::create($libraryConfig);
+                return WebserviceLibraryConfig::create($libraryConfig);
+            case 'basic':
+                return LibraryConfig::create($libraryConfig);
             default:
                 return LibraryConfig::create($libraryConfig);
         }
     }
-    
 }

@@ -7,6 +7,8 @@ use Symfony\Component\Process\Process;
 use Composer\InstalledVersions;
 use OutOfBoundsException;
 use RuntimeException;
+use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
+use Drewlabs\Libman\Contracts\LibraryRepositoryConfigInterface;
 
 class Composer
 {
@@ -50,8 +52,7 @@ class Composer
      * @throws RuntimeException 
      */
     public static function install(
-        $package,
-        string $version = null,
+        InstallableLibraryConfigInterface $library,
         \Closure $beforeCallBack = null,
         \Closure $completeCallback = null,
         \Closure $errorCallback = null
@@ -60,12 +61,22 @@ class Composer
             throw new \RuntimeException("Vendor directory configuration must not be null.");
         }
         $projectDir = dirname(realpath(static::$vendorDir));
-        if (!@is_file(realpath("$projectDir/composer.json"))) {
-            throw new \RuntimeException("Missing composer.json file at the root of the project directory. Makes sure the project is a composer based project. by running `composer init`");
+        if (!@is_file($composerJsonPath = realpath("$projectDir/composer.json"))) {
+            throw new \RuntimeException("Missing composer.json file at the root \"$projectDir\" of the project directory. Makes sure the project is a composer based project. by running `composer init`");
+        }
+        if (!empty($respositories = $library->getRepository()) && $library->isPrivate()) {
+            static::updateComposerJson($composerJsonPath, ['repositories' => function () use ($respositories) {
+                return array_map(function (LibraryRepositoryConfigInterface $respository) {
+                    return ['type' => $respository->getType(), 'url' => $respository->getURL()];
+                }, array_filter(is_array($respositories) ? $respositories : [$respositories]));
+            }]);
         }
         // Build the package with version information if the version  is propvided
-        // else return the $package name 
-        $package = $version ? "$package@^$version" : "$package";
+        // else return the $package name
+        $version = $library->getVersion();
+        $version = $version && (preg_match('/\d/', $version[0]) === false) ? substr($version, 1) : $version;
+        $package = $library->getPackage();
+        $package = $version && !$library->isPrivate() ? "$package@^$version" : "$package";
         if (null === static::$binaryPath) {
             static::$binaryPath = (new ExecutableFinder())->find('composer');
         }
@@ -73,6 +84,7 @@ class Composer
             throw new \RuntimeException("No composer installer found at path: ", static::$binaryPath);
         }
         $commands = !@is_executable(static::$binaryPath) ? [static::$binaryPath, 'require', $package, '--optimize-autoloader',  '--no-ansi'] : ['php', static::$binaryPath, 'require', $package, '--optimize-autoloader',  '--no-ansi'];
+        print_r(['package' => $package, 'command' => $commands]);
         $process = new Process($commands, $projectDir);
         $process->start();
         if ($beforeCallBack) {
@@ -86,7 +98,7 @@ class Composer
         }
 
         if (!$process->isSuccessful() && $errorCallback) {
-            return $errorCallback($process->getOutput());
+            return $errorCallback($process->getErrorOutput());
         }
         return $process->getOutput();
     }
@@ -124,6 +136,36 @@ class Composer
             }
         }
         return $classPath;
+    }
+
+    /**
+     * Update some property of the composer json
+     * 
+     * @param string $path 
+     * @param array $values 
+     * @return void 
+     */
+    public static function updateComposerJson(string $path, array $values)
+    {
+        if (!@is_file($path)) {
+            return;
+        }
+        $composerJson = json_decode(file_get_contents($path), true);
+        if ($composerJson) {
+            foreach ($values as $key => $value) {
+                $value = !is_string($value) && is_callable($value) ? $value() : $value;
+                if (!is_string($key)) {
+                    continue;
+                }
+                if (isset($composerJson[$key]) && is_array($composerJson[$key]) && is_array($value)) {
+                    $composerJson[$key] = array_unique(array_merge($composerJson[$key], $value), SORT_REGULAR);
+                    continue;
+                }
+                $composerJson[$key] = $value;
+            }
+            // Write the updated composer json back to file
+            file_put_contents($path, str_replace('\/', '/', json_encode($composerJson, JSON_PRETTY_PRINT)));
+        }
     }
 
     /**

@@ -2,7 +2,9 @@
 
 namespace Drewlabs\Libman;
 
+use ArrayIterator;
 use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
+use Drewlabs\Libman\Exceptions\FileNotFoundException;
 
 class JsonDefinitionsProvider implements LibraryDefinitionsProvider
 {
@@ -44,8 +46,15 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
         return $instance;
     }
 
-    private static function load(string $path)
+    private static function load(string &$path)
     {
+        $path = realpath($path);
+        if (@is_dir($path) && @is_file("$path" . DIRECTORY_SEPARATOR . "libman.json")) {
+            $path = "$path" . DIRECTORY_SEPARATOR . "libman.json";
+        }
+        if (!is_file($path)) {
+            throw new FileNotFoundException($path);
+        }
         return json_decode(file_get_contents($path), true);
     }
 
@@ -59,7 +68,7 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
 
     public function definitions()
     {
-        return $this->values['services'] ?? [];
+        return new ArrayIterator($this->values['services'] ?? $this->values ?? []);
     }
 
     public function persist()

@@ -7,6 +7,8 @@ use Drewlabs\Libman\Contracts\AuthCredentialsInterface;
 use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
 use Drewlabs\Libman\Contracts\WebServiceLibraryConfigInterface;
 use Drewlabs\Libman\Traits\LibraryConfig;
+use Drewlabs\Libman\Utils\AuthCredentials;
+use InvalidArgumentException;
 
 /**
  *
@@ -24,23 +26,17 @@ class WebserviceLibraryConfig implements
     use LibraryConfig;
 
     /**
-     *
-     * @var string
-     */
-    private $apiKey;
-
-    /**
-     *
-     * @var string
-     */
-    private $client;
-
-    /**
      * Webservice host
      *
      * @var mixed
      */
     private $host;
+
+    /**
+     * 
+     * @var AuthCredentialsInterface
+     */
+    private $auth;
 
     /**
      * 
@@ -69,46 +65,24 @@ class WebserviceLibraryConfig implements
         $this->type = $type;
         $this->activated = true;
         $this->host = $host;
-        $this->apiKey = $apiKey;
-        $this->client = $client;
+        $this->auth = new AuthCredentials($client, $apiKey);
+    }
+
+    public function setAuth($value)
+    {
+        $value = is_object($value) ? get_object_vars($value) : $value;
+        if (!is_array($value)) {
+            throw new InvalidArgumentException("Expect array/object as parameter, got " . (null !== $value && is_object($value) ? get_class($value) : gettype($value)));
+        }
+        $this->auth = AuthCredentials::fromArray($value);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getAuthCredentials()
+    public function getAuth()
     {
-        return new class($this->client, $this->apiKey) implements AuthCredentialsInterface
-        {
-            // Properties defintions
-            /**
-             * 
-             * @var null|string
-             */
-            private $id;
-
-            /**
-             * 
-             * @var null|string
-             */
-            private $secret;
-
-            public function __construct(?string $id = null, ?string $secret = null)
-            {
-                $this->id = $id;
-                $this->secret = $secret;
-            }
-
-            public function id()
-            {
-                return $this->id;
-            }
-
-            public function secret()
-            {
-                return $this->secret;
-            }
-        };
+        return $this->auth;
     }
 
     /**

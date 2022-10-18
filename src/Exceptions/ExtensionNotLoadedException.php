@@ -1,6 +1,6 @@
 <?php
 
-namespace Drewlabs\Libman\Exception;
+namespace Drewlabs\Libman\Exceptions;
 
 use Exception;
 

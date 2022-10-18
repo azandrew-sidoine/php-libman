@@ -24,8 +24,10 @@ interface LibraryConfigurationsRepositoryInterface
     /**
      * Returns the list of available library configuration
      * 
-     * @return Generator<int, LibraryConfig, mixed, void> 
+     * @param \Closure<object|array,bool>|null $predicate 
+     * 
+     * @return \Traversable
      */
-    public function selectAll();
+    public function selectAll(?\Closure $predicate = null);
 
 }

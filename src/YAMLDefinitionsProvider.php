@@ -2,8 +2,10 @@
 
 namespace Drewlabs\Libman;
 
+use ArrayIterator;
 use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
-use Drewlabs\Libman\Exception\ExtensionNotLoadedException;
+use Drewlabs\Libman\Exceptions\ExtensionNotLoadedException;
+use Drewlabs\Libman\Exceptions\FileNotFoundException;
 use ReflectionException;
 
 class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
@@ -44,6 +46,7 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
      * @param bool $persistable 
      * @return static 
      * @throws ExtensionNotLoadedException 
+     * @throws FileNotFoundException 
      * @throws ReflectionException 
      */
     public static function create(string $path, bool $persistable = true)
@@ -64,7 +67,7 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
 
     public function definitions()
     {
-        return $this->values['services'] ?? [];
+        return new ArrayIterator($this->values['services'] ?? []);
     }
 
     public function addDefinition(array $value)
@@ -83,12 +86,27 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
         if (!@is_writable($this->documentPath)) {
             return;
         }
-        file_put_contents($this->documentPath, yaml_emit($this->values));
+        file_put_contents($this->documentPath, yaml_emit($this->values, YAML_UTF8_ENCODING));
     }
 
 
-    private static function load(string $path)
+    /**
+     * 
+     * @param string $path 
+     * @return array 
+     * @throws FileNotFoundException 
+     */
+    private static function load(string &$path)
     {
+        $path = realpath($path);
+        if (@is_dir($path) && @is_file("$path" . DIRECTORY_SEPARATOR . "libman.yml")) {
+            $path = "$path" . DIRECTORY_SEPARATOR . "libman.yml";
+        } else if (@is_dir($path) && @is_file("$path" . DIRECTORY_SEPARATOR . "libman.yaml")) {
+            $path = "$path" . DIRECTORY_SEPARATOR . "libman.yaml";
+        }
+        if (!is_file($path)) {
+            throw new FileNotFoundException($path);
+        }
         return (array)(yaml_parse(file_get_contents($path)));
     }
 }
