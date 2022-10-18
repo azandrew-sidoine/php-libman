@@ -17,6 +17,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.2",
+        "ext-yaml": "*",
         "symfony/process": "^6.1",
         "composer-runtime-api": "^2.0",
         "phpunit/phpunit": "^9.5",
