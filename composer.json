@@ -1,5 +1,6 @@
 {
     "name": "drewlabs/libman",
+    "description": "Libman package is a small PHP utility library used in installing, creating business specific class instance using configuration based approach",
     "type": "library",
     "license": "MIT",
     "autoload": {
