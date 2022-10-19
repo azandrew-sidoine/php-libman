@@ -14,6 +14,11 @@ services:
   type: composer
   package: drewlabs/crypt
   version: 0.2
+-
+  id: c9c8dba2-068c-454e-a1f5-fa711bddde41
+  name: Test Library
+  type: default
+  factory: \Drewlabs\Libman\Tests\Stubs\ClientLibraryFactory
 
 -
   name: Contracts

@@ -6,7 +6,7 @@ use ArrayIterator;
 use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
 use Drewlabs\Libman\Exceptions\FileNotFoundException;
 
-class JsonDefinitionsProvider implements LibraryDefinitionsProvider
+class JSONDefinitionsProvider implements LibraryDefinitionsProvider
 {
     /**
      * 

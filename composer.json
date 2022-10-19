@@ -5,7 +5,10 @@
     "autoload": {
         "psr-4": {
             "Drewlabs\\Libman\\": "src/"
-        }
+        },
+        "files": [
+            "./src/proxy.php"
+        ]
     },
     "authors": [
         {

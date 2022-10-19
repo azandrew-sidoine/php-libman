@@ -4,11 +4,42 @@ namespace Drewlabs\Libman;
 
 use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
 use Drewlabs\Libman\Contracts\LibraryConfigInterface;
+use Drewlabs\Libman\Contracts\LibraryConfigurationsRepositoryInterface;
 use InvalidArgumentException;
 use RuntimeException;
 
 class LibraryManager
 {
+
+    /**
+     * 
+     * @var LibraryConfigurationsRepositoryInterface
+     */
+    private $repository;
+
+    public function __construct(LibraryConfigurationsRepositoryInterface $repository)
+    {
+        $this->repository = $repository;
+    }
+
+
+    /**
+     * Resolve or Create a library instance
+     * 
+     * @param string $id 
+     * @return object 
+     * @throws RuntimeException 
+     * @throws InvalidArgumentException 
+     */
+    public function resolveInstance(string $id)
+    {
+        $library = $this->repository->select($id);
+        if ((null === $library) || !($library instanceof LibraryConfigInterface)) {
+            throw new RuntimeException("Library $id is not configured in the provided repository");
+        }
+        return static::createInstance($library);
+    }
+
     /**
      * Install a library along with it dependencies using the configuration object
      *

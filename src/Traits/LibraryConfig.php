@@ -69,7 +69,14 @@ trait LibraryConfig
      * 
      * @var bool
      */
-    private $private;
+    private $private = false;
+
+    /**
+     * Indicated if the library is activated or not
+     * 
+     * @var bool
+     */
+    private $activated = true;
 
     /**
      * The default namespace from which the library factory class must be resolved
