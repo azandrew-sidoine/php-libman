@@ -41,7 +41,7 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
 
         if ($libraryConfig instanceof InstallableLibraryConfigInterface) {
             $attributes['package'] = $libraryConfig->getPackage();
-            $attributes['version'] = $libraryConfig->getPackage();
+            $attributes['version'] = $libraryConfig->getVersion();
             $attributes['type'] = $libraryConfig->getType();
         }
 
