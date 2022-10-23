@@ -66,8 +66,8 @@ class LibraryManager
             throw new InvalidArgumentException(sprintf('Library %s is does not exists', $libraryConfig->name()));
         }
         if (!$libraryConfig->activated()) {
-            throw new InvalidArgumentException(sprintf('Library %s has been disabled', $libraryConfig->name()));
+            throw new InvalidArgumentException(sprintf('Library %s has been disabled', $libraryConfig->getName()));
         }
-        return call_user_func([$libraryConfig->getFactoryClass(), 'createInstance'], $libraryConfig);
+        return call_user_func([$libraryConfig->factoryClass(), 'createInstance'], $libraryConfig);
     }
 }

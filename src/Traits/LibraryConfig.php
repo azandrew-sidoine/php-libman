@@ -145,15 +145,20 @@ trait LibraryConfig
     /**
      * {@inheritDoc}
      */
-    public function name()
+    public function getName()
     {
         return $this->name;
+    }
+
+    public function getFactory()
+    {
+        return $this->factory;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getFactoryClass()
+    public function factoryClass()
     {
         if ((null === ($factory = $this->resolveFactoryClass())) || !class_exists($factory)) {
             throw new RuntimeException('Expected instance of ' . LibraryFactoryInterface::class . ' got ' . $factory);
@@ -285,15 +290,15 @@ trait LibraryConfig
      */
     private function resolveFactoryClass()
     {
-        if ($this->factory && class_exists($this->factory)) {
-            return $this->factory;
+        if (($factory = $this->getFactory()) && class_exists($factory)) {
+            return $factory;
         }
         $factoryClass = null;
         if ((strtolower($this->getType()) === 'composer') && (null !== $this->getPackage())) {
             // We working with composer based library configuration, we assume by default `Factory.php` is the
             // class used to create the library instance if no factory class is provided
-            $factoryClass =  Composer::resolveClassPath($this->getPackage(), $this->factory ?? 'Factory');
+            $factoryClass =  Composer::resolveClassPath($this->getPackage(), $this->getFactory() ?? 'Factory');
         }
-        return $factoryClass ?? sprintf("%s\\%s", $this->defaultNamespace(), Strings::camelize($this->name()));
+        return $factoryClass ?? sprintf("%s\\%s", $this->defaultNamespace(), Strings::camelize($this->getName()));
     }
 }

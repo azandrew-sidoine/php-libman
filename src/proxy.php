@@ -7,7 +7,7 @@ use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
 use Drewlabs\Libman\Exceptions\ExtensionNotLoadedException;
 use Drewlabs\Libman\Exceptions\FileNotFoundException;
 use Drewlabs\Libman\InMemoryConfigurationRepository;
-use Drewlabs\Libman\JSONDefinitionsProvider;
+use Drewlabs\Libman\JsonDefinitionsProvider;
 use Drewlabs\Libman\YAMLDefinitionsProvider;
 use ReflectionException;
 
@@ -48,5 +48,5 @@ function CreateYAMLLibraryRepository(string $path, ?bool $persistable = true) {
  * @throws ReflectionException 
  */
 function CreateJSONLibraryRepository(string $path, ?bool $persistable = true) {
-    return new InMemoryConfigurationRepository(JSONDefinitionsProvider::create($path, $persistable));
+    return new InMemoryConfigurationRepository(JsonDefinitionsProvider::create($path, $persistable));
 }

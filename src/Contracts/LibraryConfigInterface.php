@@ -18,14 +18,21 @@ interface LibraryConfigInterface
      *
      * @return string
      */
-    public function name();
+    public function getName();
+
+    /**
+     * Returns the library factory class name configured for the library
+     * 
+     * @return string 
+     */
+    public function getFactory();
 
     /**
      * Returns the class path of the library
      *
      * @return LibraryFactoryInterface|string
      */
-    public function getFactoryClass();
+    public function factoryClass();
 
     /**
      * Indicates whether the library is enabled or not

@@ -68,7 +68,7 @@ class InMemoryRepositoryTest extends TestCase
         $instance->add(LibraryConfig::new('TestLib', 'composer', 'test/library', TestLibraryFactory::class));
         $library = $instance->select('test/library');
         $this->assertInstanceOf(LibraryConfigInterface::class, $library);
-        $this->assertEquals('TestLib', $library->name());
+        $this->assertEquals('TestLib', $library->getName());
     }
 
     public function test_repository_select_all_returns_an_iteratble()

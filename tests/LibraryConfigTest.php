@@ -13,7 +13,7 @@ class LibraryConfigTest extends TestCase
     {
         $instance = LibraryConfig::new('ClientLibrary', 'composer', 'client/library');
         $this->assertInstanceOf(InstallableLibraryConfigInterface::class, $instance);
-        $this->assertEquals($instance->name(), 'ClientLibrary');
+        $this->assertEquals($instance->getName(), 'ClientLibrary');
         $this->assertEquals($instance->getType(), 'composer');
         $this->assertEquals($instance->getPackage(), 'client/library');
 
@@ -24,13 +24,13 @@ class LibraryConfigTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Expected instance of Drewlabs\Libman\Contracts\LibraryFactoryInterface got \App\FT');
         $instance = LibraryConfig::new('FT', 'composer', 'client/library');
-        $instance->getFactoryClass();
+        $instance->factoryClass();
         $this->assertTrue(true);
     }
 
     public function test_library_config_instance_get_factory_class_return_instance_of_factory_class_interface_or_name_of_class_implenting_factory_class_interface()
     {
-        $factoryClass = LibraryConfig::new('ClientLibrary', 'composer', 'client/library', ClientLibraryFactory::class)->getFactoryClass();
+        $factoryClass = LibraryConfig::new('ClientLibrary', 'composer', 'client/library', ClientLibraryFactory::class)->factoryClass();
         $this->assertTrue(is_a($factoryClass, LibraryFactoryInterface::class, true));
     }
 

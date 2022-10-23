@@ -34,8 +34,8 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
     public function add(LibraryConfigInterface $libraryConfig)
     {
         $attributes = [
-            'name' => $libraryConfig->name(),
-            'factory' => $libraryConfig->getFactoryClass(),
+            'name' => $libraryConfig->getName(),
+            'factory' => $libraryConfig->getFactory(),
             'activated' => $libraryConfig->activated()
         ];
 
