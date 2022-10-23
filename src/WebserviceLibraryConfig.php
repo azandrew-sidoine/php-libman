@@ -12,9 +12,9 @@ use InvalidArgumentException;
 
 /**
  *
- * @method \Drewlabs\Libman\WebserviceLibraryConfig static new(string $name, string $type, string $host, string $apikey)
- * @method \Drewlabs\Libman\WebserviceLibraryConfig static new(string $name, string $type, string $host, string $apikey, string $clientid)
- * @method \Drewlabs\Libman\WebserviceLibraryConfig static new(string $name, string $type, string $host, string $apikey, string $clientid, string $package, string $factory)
+ * @method static \Drewlabs\Libman\WebserviceLibraryConfig new(string $name, string $type, string $host, string $apikey)
+ * @method static \Drewlabs\Libman\WebserviceLibraryConfig new(string $name, string $type, string $host, string $apikey, string $clientid)
+ * @method static \Drewlabs\Libman\WebserviceLibraryConfig new(string $name, string $type, string $host, string $apikey, string $clientid, string $package, string $factory)
  *
  * @package Drewlabs\Libman
  */
