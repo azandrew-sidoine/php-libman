@@ -84,7 +84,6 @@ class Composer
             throw new \RuntimeException("No composer installer found at path: ", static::$binaryPath);
         }
         $commands = !@is_executable(static::$binaryPath) ? [static::$binaryPath, 'require', $package, '--optimize-autoloader',  '--no-ansi'] : ['php', static::$binaryPath, 'require', $package, '--optimize-autoloader',  '--no-ansi'];
-        print_r(['package' => $package, 'command' => $commands]);
         $process = new Process($commands, $projectDir);
         $process->start();
         if ($beforeCallBack) {
