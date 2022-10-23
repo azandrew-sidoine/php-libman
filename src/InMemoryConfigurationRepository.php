@@ -50,8 +50,7 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
             $attributes['service'] = 'tcp';
         }
 
-        if ($libraryConfig instanceof AuthBasedLibraryConfigInterface) {
-            $auth = $libraryConfig->getAuth();
+        if (($libraryConfig instanceof AuthBasedLibraryConfigInterface) && (null !== ($auth = $libraryConfig->getAuth()))) {
             $attributes['auth']['id'] = $auth->id();
             $attributes['auth']['secret'] = $auth->secret();
         }
