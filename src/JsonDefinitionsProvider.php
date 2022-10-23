@@ -79,6 +79,6 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
         if (!@is_writable($this->documentPath)) {
             return;
         }
-        file_put_contents($this->documentPath, json_encode($this->values, JSON_PRETTY_PRINT));
+        file_put_contents($this->documentPath, str_replace('\/', '/', json_encode($this->values, JSON_PRETTY_PRINT)));
     }
 }
