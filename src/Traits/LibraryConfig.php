@@ -184,7 +184,7 @@ trait LibraryConfig
      * @param string|null $namespace
      * @return string
      */
-    public function defaultNamespace(?string $namespace = null)
+    public function defaultNamespace(string $namespace = null)
     {
         if (null !== $namespace) {
             $this->defaultNamespace = $namespace;

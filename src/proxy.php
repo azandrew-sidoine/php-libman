@@ -33,7 +33,7 @@ function CreateInMemoryRepository(LibraryDefinitionsProvider $provider)
  * @throws FileNotFoundException 
  * @throws ReflectionException 
  */
-function CreateYAMLLibraryRepository(string $path, ?bool $persistable = true) {
+function CreateYAMLLibraryRepository(string $path, bool $persistable = true) {
     return new InMemoryConfigurationRepository(YAMLDefinitionsProvider::create($path, $persistable));
 }
 
@@ -47,6 +47,6 @@ function CreateYAMLLibraryRepository(string $path, ?bool $persistable = true) {
  * @throws FileNotFoundException 
  * @throws ReflectionException 
  */
-function CreateJSONLibraryRepository(string $path, ?bool $persistable = true) {
+function CreateJSONLibraryRepository(string $path, bool $persistable = true) {
     return new InMemoryConfigurationRepository(JsonDefinitionsProvider::create($path, $persistable));
 }

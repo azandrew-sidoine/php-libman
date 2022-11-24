@@ -24,7 +24,7 @@ class Composer
      */
     private static $vendorDir = '../../../';
 
-    public static function binary(?string $path = null)
+    public static function binary(string $path = null)
     {
         if (null !== $path) {
             static::$binaryPath = $path;
