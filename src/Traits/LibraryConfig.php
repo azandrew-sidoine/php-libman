@@ -195,15 +195,15 @@ trait LibraryConfig
     /**
      *  Register event listener callback that is executed when the library is deactived
      * 
-     * @param Closure $callback
+     * @param Closure|callable $callback
      * @return void
      */
-    public function addDeactivateListener(\Closure $callback)
+    public function addDeactivateListener(callable $callback)
     {
         if (null === $callback) {
             return;
         }
-        $this->registerMacro('onDeactivate', is_callable($callback) ? \Closure::fromCallable($callback) : $callback);
+        $this->registerMacro('onDeactivate', $callback);
     }
 
     /**
@@ -217,10 +217,10 @@ trait LibraryConfig
         // We simply invoke the onDeactivate macro passing the current
         // instance as parameter to the caller
         foreach ($this->getMacros('onDeactivate') as $callback) {
-            if (null === $callback) {
+            if ((null === $callback) || (!is_callable($callback))) {
                 continue;
             }
-            \Closure::bind($callback, $this)->__invoke($this);
+            $callback($this);
         }
         return $this;
     }
@@ -264,10 +264,10 @@ trait LibraryConfig
      * Register a macro or a callable function with bindings to a given name
      *
      * @param mixed $name
-     * @param Closure $macro
+     * @param Closure|callable $macro
      * @return void
      */
-    private function registerMacro($name, \Closure $macro)
+    private function registerMacro($name, callable $macro)
     {
         $this->callbacks[$name] = array_merge($this->callbacks[$name] ?? [], [$macro]);
     }
