@@ -35,7 +35,7 @@ class InMemoryRepositoryTest extends TestCase
         $this->assertEquals('drewlabs/contracts', $library->getPackage());
         $this->assertEquals('composer', $library->getType());
         $this->assertEquals(true, $library->isPrivate());
-        $this->assertIsArray($library->getRepository());
+        $this->assertTrue(is_array($library->getRepository()));
         $this->assertInstanceOf(LibraryRepositoryConfigInterface::class, $library->getRepository()[0]);
         $this->assertEquals('git@github.com:liksoft/drewlabs-php-contracts.git', $library->getRepository()[0]->getURL());
     }

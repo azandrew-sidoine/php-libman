@@ -1,0 +1,33 @@
+name: CI - Libman Unit Tests
+
+on:
+  - pull_request
+  - push
+
+jobs:
+  run:
+    name: Tests
+
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+        php-versions:
+          ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+
+    runs-on: ${{ matrix.operating-system }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: sockets, json, curl
+
+      - name: Install dependencies with composer
+        run: composer update
+
+      - name: Test with phpunit
+        run: vendor/bin/phpunit
