@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Drewlabs\Libman;
 
 use Drewlabs\Libman\Contracts\AuthBasedLibraryConfigInterface;
@@ -8,46 +19,30 @@ use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
 use Drewlabs\Libman\Contracts\WebServiceLibraryConfigInterface;
 use Drewlabs\Libman\Traits\LibraryConfig;
 use Drewlabs\Libman\Utils\AuthCredentials;
-use InvalidArgumentException;
 
 /**
- *
  * @method static \Drewlabs\Libman\WebserviceLibraryConfig new(string $name, string $type, string $host, string $apikey)
  * @method static \Drewlabs\Libman\WebserviceLibraryConfig new(string $name, string $type, string $host, string $apikey, string $clientid)
  * @method static \Drewlabs\Libman\WebserviceLibraryConfig new(string $name, string $type, string $host, string $apikey, string $clientid, string $package, string $factory)
- *
- * @package Drewlabs\Libman
  */
-class WebserviceLibraryConfig implements
-    InstallableLibraryConfigInterface,
-    WebServiceLibraryConfigInterface,
-    AuthBasedLibraryConfigInterface
+class WebserviceLibraryConfig implements InstallableLibraryConfigInterface, WebServiceLibraryConfigInterface, AuthBasedLibraryConfigInterface
 {
     use LibraryConfig;
 
     /**
-     * Webservice host
+     * Webservice host.
      *
      * @var mixed
      */
     private $host;
 
     /**
-     * 
      * @var AuthCredentialsInterface
      */
     private $auth;
 
     /**
-     * 
-     * @param string $name 
-     * @param null|string $type 
-     * @param null|string $host 
-     * @param null|string $apiKey 
-     * @param null|string $client 
-     * @param null|string $package 
-     * @param null|string $factory 
-     * @return self 
+     * @return self
      */
     public function __construct(
         string $name,
@@ -58,9 +53,8 @@ class WebserviceLibraryConfig implements
         string $package = null,
         string $factory = null
     ) {
-
         $this->name = $name;
-        $this->package  = $package;
+        $this->package = $package;
         $this->factory = $factory;
         $this->type = $type;
         $this->activated = true;
@@ -70,9 +64,9 @@ class WebserviceLibraryConfig implements
 
     public function setAuth($value)
     {
-        $value = is_object($value) ? get_object_vars($value) : $value;
-        if (!is_array($value)) {
-            throw new InvalidArgumentException("Expect array/object as parameter, got " . (null !== $value && is_object($value) ? get_class($value) : gettype($value)));
+        $value = \is_object($value) ? get_object_vars($value) : $value;
+        if (!\is_array($value)) {
+            throw new \InvalidArgumentException('Expect array/object as parameter, got '.(null !== $value && \is_object($value) ? \get_class($value) : \gettype($value)));
         }
         $this->auth = AuthCredentials::fromArray($value);
     }

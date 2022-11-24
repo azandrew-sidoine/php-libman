@@ -39,7 +39,7 @@ $rules = [
     'no_superfluous_phpdoc_tags' => ['allow_mixed' => true],
     'no_useless_else' => true,
     'no_useless_return' => true,
-    'nullable_type_declaration_for_default_null_value' => ['use_nullable_type_declaration' => true],
+    'nullable_type_declaration_for_default_null_value' => ['use_nullable_type_declaration' => false],
     'ordered_class_elements' => true,
     'ordered_imports' => true,
     'php_unit_method_casing' => false,

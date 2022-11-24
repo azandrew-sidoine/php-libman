@@ -1,30 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Drewlabs\Libman;
 
 use Drewlabs\Libman\Contracts\AuthBasedLibraryConfigInterface;
-use Drewlabs\Libman\Contracts\LibraryConfigInterface;
 use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
+use Drewlabs\Libman\Contracts\LibraryConfigInterface;
 use Drewlabs\Libman\Contracts\LibraryConfigurationsRepositoryInterface;
 use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
 use Drewlabs\Libman\Contracts\WebServiceLibraryConfigInterface;
 use Drewlabs\Libman\Exceptions\ExtensionNotLoadedException;
-use Drewlabs\Libman\LibraryConfig;
-use Drewlabs\Libman\WebserviceLibraryConfig;
 
 class InMemoryConfigurationRepository implements LibraryConfigurationsRepositoryInterface
 {
     /**
-     * 
      * @var LibraryDefinitionsProvider
      */
     private $provider;
 
     /**
-     * 
-     * @param LibraryDefinitionsProvider $path 
-     * @return self 
-     * @throws ExtensionNotLoadedException 
+     * @throws ExtensionNotLoadedException
+     *
+     * @return self
      */
     public function __construct(LibraryDefinitionsProvider $provider)
     {
@@ -36,7 +43,7 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
         $attributes = [
             'name' => $libraryConfig->getName(),
             'factory' => $libraryConfig->getFactory(),
-            'activated' => $libraryConfig->activated()
+            'activated' => $libraryConfig->activated(),
         ];
 
         if ($libraryConfig instanceof InstallableLibraryConfigInterface) {
@@ -60,7 +67,7 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
     public function select($id)
     {
         foreach ($this->provider->definitions() as $value) {
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 continue;
             }
             if ($this->propertyIs($value, 'id', $id) || $this->propertyIs($value, 'package', $id)) {
@@ -70,14 +77,15 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
                 return $this->createLibraryConfig($value);
             }
         }
+
         return null;
     }
 
     public function selectAll(\Closure $predicate = null)
     {
-        if (!is_string($predicate) && is_callable($predicate)) {
+        if (!\is_string($predicate) && \is_callable($predicate)) {
             foreach ($this->provider->definitions() as $value) {
-                if ($predicate && $predicate((object)$value)) {
+                if ($predicate && $predicate((object) $value)) {
                     yield $this->createLibraryConfig($value);
                 }
             }
@@ -89,24 +97,23 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
     }
 
     /**
-     * Check if a key of the array as haystack match user provided $value
-     * 
-     * @param array $haystack 
-     * @param string $name 
-     * @param mixed $value 
-     * @return bool 
+     * Check if a key of the array as haystack match user provided $value.
+     *
+     * @param mixed $value
+     *
+     * @return bool
      */
     private function propertyIs(array $haystack, string $name, $value)
     {
-        return ($value === ($haystack[$name] ?? null));
+        return $value === ($haystack[$name] ?? null);
     }
 
     /**
-     * Creates a library configuration instance
-     * 
-     * @param array $libraryConfig 
-     * @return LibraryConfig 
-     * @throws ReflectionException 
+     * Creates a library configuration instance.
+     *
+     * @throws ReflectionException
+     *
+     * @return LibraryConfig
      */
     private function createLibraryConfig(array $libraryConfig)
     {

@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
 use Drewlabs\Libman\Contracts\LibraryFactoryInterface;
 use Drewlabs\Libman\LibraryConfig;
@@ -8,15 +19,13 @@ use PHPUnit\Framework\TestCase;
 
 class LibraryConfigTest extends TestCase
 {
-
     public function test_create_library_config_instance()
     {
         $instance = LibraryConfig::new('ClientLibrary', 'composer', 'client/library');
         $this->assertInstanceOf(InstallableLibraryConfigInterface::class, $instance);
-        $this->assertEquals($instance->getName(), 'ClientLibrary');
-        $this->assertEquals($instance->getType(), 'composer');
-        $this->assertEquals($instance->getPackage(), 'client/library');
-
+        $this->assertSame($instance->getName(), 'ClientLibrary');
+        $this->assertSame($instance->getType(), 'composer');
+        $this->assertSame($instance->getPackage(), 'client/library');
     }
 
     public function test_library_config_instance_get_factory_class_throws_exception_for_missing_factory_class()
@@ -41,11 +50,11 @@ class LibraryConfigTest extends TestCase
          */
         $instance = LibraryConfig::new('ClientLibrary', 'composer', 'client/library', ClientLibraryFactory::class);
         $times = 0;
-        $instance->addDeactivateListener(function() use (&$times) {
-            $times += 1;
+        $instance->addDeactivateListener(static function () use (&$times) {
+            ++$times;
         });
         $instance->deactivate();
         $instance->deactivate();
-        $this->assertEquals($times, 2, 'Expect the onDeactive callaback to be called twice');
+        $this->assertSame($times, 2, 'Expect the onDeactive callaback to be called twice');
     }
 }

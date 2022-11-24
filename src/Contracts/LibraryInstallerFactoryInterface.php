@@ -1,14 +1,23 @@
 <?php
 
-namespace Drewlabs\Libman\Contracts;
+declare(strict_types=1);
 
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Drewlabs\Libman\Contracts;
 
 interface LibraryInstallerFactoryInterface
 {
     /**
-     * Creates an instance of a library installer
+     * Creates an instance of a library installer.
      *
-     * @param InstallableLibraryConfigInterface $libraryConfig
      * @return LibraryInstaller
      */
     public static function create(InstallableLibraryConfigInterface $libraryConfig);

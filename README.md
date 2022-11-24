@@ -75,3 +75,7 @@ use Drewlabs\Libman\LibraryConfig;
 // Create an Instance of the library 
 $instance = LibraryManager::createInstance(LibraryConfig::new('ClientLibrary));
 ```
+
+## API Reference
+
+The API reference for the library can be found at []
