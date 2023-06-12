@@ -22,7 +22,9 @@
     "require": {
         "php": ">=7.0",
         "symfony/process": ">=3.4|^4.0|^5.0|^6.1",
-        "composer-runtime-api": "^2.0"
+        "composer-runtime-api": "^2.0",
+        "drewlabs/crypt": "^0.2.5",
+        "drewlabs/envoyer-contracts": "^0.2.4"
     },
     "require-dev": {
         "phpunit/phpunit": ">=6.0"
@@ -34,5 +36,9 @@
     },
     "suggest": {
         "ext-yaml": "YAML extension is required to use the YAML definiton loader"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
     }
 }
