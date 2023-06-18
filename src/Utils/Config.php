@@ -33,6 +33,17 @@ class Config implements RepositoryInterface
     }
 
     /**
+     * {@inheritDoc}
+     * 
+     * @return array<string,mixed>
+     */
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
      * Immutable interface for merging repository internal state
      * 
      * @param array $values 

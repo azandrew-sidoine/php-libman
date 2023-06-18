@@ -368,10 +368,10 @@ class CreateLibraryCommand
     private function getLibraryExtaConfigurations()
     {
         $config = [];
-        $input = boolval(($this->confirmCallback)('Does the library depends on extras configuration ?'));
+        $input = boolval(($this->confirmCallback)('Does the library depends on extras configurations ?'));
         while ($input) {
-            $name = ($this->promptCallback)('Please configuration name: ');
-            $value = ($this->promptCallback)('Please enter the configuration value: ');
+            $name = ($this->promptCallback)('Please configuration name ');
+            $value = ($this->promptCallback)('Please enter the configuration value ');
             if (null === $value || (null === $name)) {
                 break;
             }

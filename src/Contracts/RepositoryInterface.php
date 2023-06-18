@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace Drewlabs\Libman\Contracts;
 
-interface RepositoryInterface
+use JsonSerializable;
+
+interface RepositoryInterface extends JsonSerializable
 {
 
     /**

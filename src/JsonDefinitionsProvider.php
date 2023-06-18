@@ -16,6 +16,7 @@ namespace Drewlabs\Libman;
 use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
 use Drewlabs\Libman\Exceptions\FileNotFoundException;
 use ReflectionException;
+use Drewlabs\Libman\Contracts\CryptInterface;
 
 class JsonDefinitionsProvider implements LibraryDefinitionsProvider
 {
@@ -35,6 +36,11 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
     private $persistable;
 
     /**
+     * @var CryptInterface
+     */
+    private $crypt;
+
+    /**
      * Creates an instance of {@see JsonDefinitionsProvider} class.
      *
      * @return self
@@ -44,14 +50,28 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
         $this->values = $values;
     }
 
-    public static function create(string $path, bool $persistable = true)
+    public static function create(string $path, bool $persistable = true, CryptInterface $crypt = null)
     {
+        $crypt = $crypt ?? new CryptAdapter();
         $instance = static::newInstanceWithoutConstructor();
-        $instance->values = static::load($path);
+        $instance->values = static::load($crypt, $path);
         $instance->documentPath = $path;
         $instance->persistable = $persistable;
+        $instance->setCrypt($crypt);
 
         return $instance;
+    }
+
+    /**
+     * set crypt instance
+     * 
+     * @param CryptInterface $crypt 
+     * @return static 
+     */
+    public function setCrypt(CryptInterface $crypt)
+    {
+        $this->crypt = $crypt;
+        return $this;
     }
 
     public function addDefinition(array $value)
@@ -75,10 +95,10 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
         if (!@is_writable($this->documentPath)) {
             return;
         }
-        file_put_contents($this->documentPath, str_replace('\/', '/', json_encode($this->values, \JSON_PRETTY_PRINT)));
+        file_put_contents($this->documentPath, $this->crypt->encryptString(str_replace('\/', '/', json_encode($this->values, \JSON_PRETTY_PRINT))));
     }
 
-    private static function load(string &$path)
+    private static function load(CryptInterface $crypt, string &$path)
     {
         $path = realpath($path);
         if (@is_dir($path) && @is_file("$path" . \DIRECTORY_SEPARATOR . 'libman.json')) {
@@ -88,7 +108,7 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
             throw new FileNotFoundException($path);
         }
 
-        return json_decode(file_get_contents($path), true);
+        return json_decode($crypt->decryptString(file_get_contents($path)), true);
     }
 
     /**

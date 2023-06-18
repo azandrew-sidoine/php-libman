@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\Libman;
 
+use Drewlabs\Libman\Contracts\CryptInterface;
 use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
 use Drewlabs\Libman\Exceptions\ExtensionNotLoadedException;
 use Drewlabs\Libman\Exceptions\FileNotFoundException;
@@ -35,6 +36,13 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
     private $persistable;
 
     /**
+     * 
+     * @var CryptInterface
+     */
+    private $crypt;
+
+
+    /**
      * Creates an instance of {@see YAMLDefinitionsProvider} class.
      *
      * @return self
@@ -42,6 +50,7 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
     public function __construct(array $values = [])
     {
         $this->values = $values;
+        $this->crypt = new CryptAdapter();
     }
 
     /**
@@ -53,20 +62,30 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
      *
      * @return static
      */
-    public static function create(string $path, bool $persistable = true)
+    public static function create(string $path, bool $persistable = true, CryptInterface $crypt = null)
     {
         if (!\function_exists('yaml_parse')) {
             throw new ExtensionNotLoadedException('yaml');
         }
-        /**
-         * @var static
-         */
-        $instance = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $instance->values = static::load($path);
+        $crypt = $crypt ?? new CryptAdapter();
+        $instance = static::newInstanceWithoutConstructor();
+        $instance->values = static::load($crypt, $path);
         $instance->documentPath = $path;
         $instance->persistable = $persistable;
-
+        $instance->setCrypt($crypt);
         return $instance;
+    }
+
+    /**
+     * set crypt instance
+     * 
+     * @param CryptInterface $crypt 
+     * @return static 
+     */
+    public function setCrypt(CryptInterface $crypt)
+    {
+        $this->crypt = $crypt;
+        return $this;
     }
 
     public function definitions()
@@ -90,7 +109,7 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
         if (!@is_writable($this->documentPath)) {
             return;
         }
-        file_put_contents($this->documentPath, yaml_emit($this->values, \YAML_UTF8_ENCODING));
+        file_put_contents($this->documentPath, $this->crypt->encryptString(yaml_emit($this->values, \YAML_UTF8_ENCODING)));
     }
 
     /**
@@ -98,7 +117,7 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
      *
      * @return array
      */
-    private static function load(string &$path)
+    private static function load(CryptInterface $crypt, string &$path)
     {
         $path = realpath($path);
         if (@is_dir($path) && @is_file("$path".\DIRECTORY_SEPARATOR.'libman.yml')) {
@@ -109,7 +128,17 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
         if (!is_file($path)) {
             throw new FileNotFoundException($path);
         }
+        return (array) (yaml_parse($crypt->decryptString(file_get_contents($path))));
+    }
 
-        return (array) (yaml_parse(file_get_contents($path)));
+    /**
+     * Creates new class without calling constructor
+     * 
+     * @return static 
+     * @throws ReflectionException 
+     */
+    private static function newInstanceWithoutConstructor()
+    {
+        return (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
     }
 }

@@ -29,6 +29,7 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
     private $provider;
 
     /**
+     * 
      * @throws ExtensionNotLoadedException
      *
      * @return self
@@ -41,9 +42,11 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
     public function add(LibraryConfigInterface $libraryConfig)
     {
         $attributes = [
+            'id' => $libraryConfig->id(),
             'name' => $libraryConfig->getName(),
             'factory' => $libraryConfig->getFactory(),
             'activated' => $libraryConfig->activated(),
+            'configuration' => $libraryConfig->getConfiguration()->jsonSerialize()
         ];
 
         if ($libraryConfig instanceof InstallableLibraryConfigInterface) {
