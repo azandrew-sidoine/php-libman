@@ -231,7 +231,7 @@ class CreateLibraryCommand
      * @throws RuntimeException 
      * @throws ReflectionException 
      */
-    public function execute()
+    public function execute(callable $complete = null)
     {
         $this->assertCallbacks();
         //#region Variables initialization
@@ -241,8 +241,8 @@ class CreateLibraryCommand
         $version = null;
         $private = false;
         $package = null;
-        $id = null;
-        $secret = null;
+        $apiKey = null;
+        $apiSecret = null;
         //#region Variables initialization
 
         $type = ($this->choiceCallback)('What is the library type ?', ['composer', 'default'], 1);
@@ -270,8 +270,8 @@ class CreateLibraryCommand
         }
 
         if (($this->confirmCallback)('Does library require authentication')) {
-            $id = ($this->promptCallback)('Please specify the API host api key. Press enter for blank', null);
-            $secret = ($this->promptCallback)('Please specify the API api secret. Press enter for blank', null);
+            $apiKey = ($this->promptCallback)('Please specify the API host api key. Press enter for blank', null);
+            $apiSecret = ($this->promptCallback)('Please specify the API api secret. Press enter for blank', null);
         }
 
         $config = $this->getLibraryExtaConfigurations();
@@ -281,15 +281,14 @@ class CreateLibraryCommand
                 'name' => $name,
                 'type' => $type,
                 'host' => $host,
-                'secret' => $secret,
-                'id' => $id,
+                'secret' => $apiSecret,
                 'package' => $package,
                 'factory' => $factory,
                 'version' => $version,
                 'host' => $host,
                 'auth' => [
-                    'id' => $id,
-                    'secret' => $secret
+                    'id' => $apiKey,
+                    'secret' => $apiSecret
                 ],
                 'configuration' => $config ?? []
             ]) :
@@ -300,8 +299,8 @@ class CreateLibraryCommand
                 'factory' => $factory,
                 'version' => $version,
                 'auth' => [
-                    'id' => $id,
-                    'secret' => $secret
+                    'id' => $apiKey,
+                    'secret' => $apiSecret
                 ],
                 'configuration' => $config ?? []
             ]);
@@ -327,12 +326,20 @@ class CreateLibraryCommand
         }
 
         if ($type === 'composer') {
-            $install = ($this->confirmCallback)('Do you wish to install the library using the project composer binary ?');
-            if (true === $install) {
-                ($this->infoCallback)('Installing composer library, please wait...');
-                LibraryManager::install($libConfig);
-                ($this->infoCallback)('Library source code installed successfully!');
+            try {
+                $install = ($this->confirmCallback)('Do you wish to install the library using the project composer binary ?');
+                if (true === $install) {
+                    ($this->infoCallback)('Installing composer library, please wait...');
+                    LibraryManager::install($libConfig);
+                    ($this->infoCallback)('Library source code installed successfully!');
+                }
+            } catch (\Throwable $e) {
+                ($this->errorCallback)($e->getMessage());
             }
+        }
+        // Call the completed callback on the libconfig
+        if ($complete && is_callable($complete)) {
+            $complete($libConfig);
         }
         //# Choice, Confirm prompts
         return;
