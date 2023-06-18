@@ -32,7 +32,6 @@ class LibraryConfigConfigurationRespositoryTest extends TestCase
                 'domain' => 'https://test-domain.tg',
             ]
         ]);
-        printf("%s\n", $library->id());
         $this->assertTrue('https://test-domain.tg' === $library->getConfiguration()->get('domain'));
         $this->assertEquals($id, $library->id());
     }

@@ -375,10 +375,46 @@ class CreateLibraryCommand
             if (null === $value || (null === $name)) {
                 break;
             }
-            $config[$name] = $value;
+            // Set value for an array.
+            // Case the name contains `.`, the algorithm recursively set the nested properties
+            $this->setValue($config, $name, $value);
             $input = boolval(($this->confirmCallback)('Do you wish to add another configuration value ?'));
         }
         return $config;
+    }
+
+    /**
+     * Set property value for an array
+     * 
+     * @param mixed $array 
+     * @param string $key 
+     * @param mixed $value 
+     * @return mixed 
+     */
+    private function setValue(&$array, string $key, $value)
+    {
+        if (null === $key) {
+            return $array = $value;
+        }
+
+        $keys = explode('.', (string) $key);
+
+        while (\count($keys) > 1) {
+            $key = array_shift($keys);
+
+            // If the key doesn't exist at this depth, we will just create an empty array
+            // to hold the next value, allowing us to create the arrays to hold final
+            // values at the correct depth. Then we'll keep digging into the array.
+            if (!isset($array[$key]) || !\is_array($array[$key])) {
+                $array[$key] = [];
+            }
+
+            $array = &$array[$key];
+        }
+
+        $array[array_shift($keys)] = $value;
+
+        return $array;
     }
 
     private function getRepositoryConfig()
