@@ -15,6 +15,7 @@ namespace Drewlabs\Libman;
 
 use Drewlabs\Libman\Contracts\LibraryDefinitionsProvider;
 use Drewlabs\Libman\Exceptions\FileNotFoundException;
+use ReflectionException;
 
 class JsonDefinitionsProvider implements LibraryDefinitionsProvider
 {
@@ -45,7 +46,7 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
 
     public static function create(string $path, bool $persistable = true)
     {
-        $instance = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $instance = static::newInstanceWithoutConstructor();
         $instance->values = static::load($path);
         $instance->documentPath = $path;
         $instance->persistable = $persistable;
@@ -80,13 +81,24 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
     private static function load(string &$path)
     {
         $path = realpath($path);
-        if (@is_dir($path) && @is_file("$path".\DIRECTORY_SEPARATOR.'libman.json')) {
-            $path = "$path".\DIRECTORY_SEPARATOR.'libman.json';
+        if (@is_dir($path) && @is_file("$path" . \DIRECTORY_SEPARATOR . 'libman.json')) {
+            $path = "$path" . \DIRECTORY_SEPARATOR . 'libman.json';
         }
         if (!is_file($path)) {
             throw new FileNotFoundException($path);
         }
 
         return json_decode(file_get_contents($path), true);
+    }
+
+    /**
+     * Creates new class without calling constructor
+     * 
+     * @return static 
+     * @throws ReflectionException 
+     */
+    private static function newInstanceWithoutConstructor()
+    {
+        return (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
     }
 }

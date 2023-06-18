@@ -26,14 +26,17 @@ trait ArrayableType
      */
     public static function fromArray(array $attributes)
     {
+        /**
+         * @var static
+         */
         $instance = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        foreach ($attributes as $key => $value) {
-            if (method_exists($instance, $method = sprintf('set%s', Strings::camelize($key)))) {
+        foreach ($attributes as $name => $value) {
+            if (method_exists($instance, $method = sprintf('set%s', Strings::camelize($name)))) {
                 $instance->$method($value);
                 continue;
             }
-            if (property_exists($instance, $key)) {
-                $instance->{$key} = $value;
+            if (property_exists($instance, $name)) {
+                $instance->{$name} = $value;
                 continue;
             }
         }

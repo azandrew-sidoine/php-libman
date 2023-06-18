@@ -19,6 +19,8 @@ use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
 use Drewlabs\Libman\Contracts\WebServiceLibraryConfigInterface;
 use Drewlabs\Libman\Traits\LibraryConfig;
 use Drewlabs\Libman\Utils\AuthCredentials;
+use Drewlabs\Libman\Utils\Config;
+use Drewlabs\Libman\Utils\LibaryIDFactory;
 
 /**
  * @method static \Drewlabs\Libman\WebserviceLibraryConfig new(string $name, string $type, string $host, string $apikey)
@@ -51,7 +53,8 @@ class WebserviceLibraryConfig implements InstallableLibraryConfigInterface, WebS
         string $apiKey = null,
         string $client = null,
         string $package = null,
-        string $factory = null
+        string $factory = null,
+        array $config = []
     ) {
         $this->name = $name;
         $this->package = $package;
@@ -60,6 +63,11 @@ class WebserviceLibraryConfig implements InstallableLibraryConfigInterface, WebS
         $this->activated = true;
         $this->host = $host;
         $this->auth = new AuthCredentials($client, $apiKey);
+
+        //#region Added library id and configuration to extends previous implementation
+        $this->id = (new LibaryIDFactory)->create();
+        $this->configuration =  new Config($config);
+        //#region Added library id and configuration to extends previous implementation
     }
 
     public function setAuth($value)

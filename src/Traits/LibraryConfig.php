@@ -18,10 +18,20 @@ use Drewlabs\Libman\Contracts\LibraryFactoryInterface;
 use Drewlabs\Libman\Contracts\LibraryRepositoryConfigInterface;
 use Drewlabs\Libman\Utils\LibraryRepositoryConfig;
 use Drewlabs\Libman\Utils\Strings;
+use Drewlabs\Libman\Contracts\RepositoryInterface;
+use Drewlabs\Libman\Utils\Config;
+use Drewlabs\Libman\Utils\LibaryIDFactory;
 
 trait LibraryConfig
 {
     use ArrayableType;
+
+    /**
+     * Library id
+     * 
+     * @var string
+     */
+    private $id;
 
     /**
      * Library name or label.
@@ -94,6 +104,11 @@ trait LibraryConfig
     private $defaultNamespace = '\\App';
 
     /**
+     * @var RepositoryInterface
+     */
+    private $configuration;
+
+    /**
      * Creates a new instance of the library config.
      *
      * @param mixed $args
@@ -124,7 +139,17 @@ trait LibraryConfig
      */
     public static function create(array $attributes)
     {
-        return static::fromArray($attributes);
+        $instance = static::fromArray($attributes);
+
+        if (null === $instance->configuration) {
+            $instance->setConfiguration([]);
+        }
+
+        if (null === $instance->id) {
+            $instance->id = (new LibaryIDFactory)->create();
+        }
+
+        return $instance;
     }
 
     /**
@@ -170,10 +195,10 @@ trait LibraryConfig
     public function factoryClass()
     {
         if ((null === ($factory = $this->resolveFactoryClass())) || !class_exists($factory)) {
-            throw new \RuntimeException('Expected instance of '.LibraryFactoryInterface::class.' got '.$factory);
+            throw new \RuntimeException('Expected instance of ' . LibraryFactoryInterface::class . ' got ' . $factory);
         }
         if (!(is_a($factory, LibraryFactoryInterface::class, true))) {
-            throw new \RuntimeException('Expected instance of '.LibraryFactoryInterface::class.' got '.$factory);
+            throw new \RuntimeException('Expected instance of ' . LibraryFactoryInterface::class . ' got ' . $factory);
         }
 
         return $factory;
@@ -247,7 +272,7 @@ trait LibraryConfig
     {
         $value = \is_object($value) ? get_object_vars($value) : $value;
         if (!\is_array($value)) {
-            throw new \InvalidArgumentException('Expect array/object as parameter, got '.(null !== $value && \is_object($value) ? \get_class($value) : \gettype($value)));
+            throw new \InvalidArgumentException('Expect array/object as parameter, got ' . (null !== $value && \is_object($value) ? \get_class($value) : \gettype($value)));
         }
         // we sure the repository is always an array
         $isList = array_filter($value, 'is_array') === $value;
@@ -269,6 +294,42 @@ trait LibraryConfig
     public function isPrivate()
     {
         return $this->private;
+    }
+
+    public function id()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set the configuration property value
+     * @param mixed $config
+     *  
+     * @return static 
+     */
+    public function setConfiguration($config)
+    {
+        $config = is_array($config) ? new Config($config) : ($config instanceof RepositoryInterface ? $config : new Config([]));
+        $this->configuration = $config;
+        return $this;
+    }
+
+    public function getConfiguration(): RepositoryInterface
+    {
+        return $this->configuration;
+    }
+
+    /**
+     * Copy the library instance and change the id property
+     * 
+     * @param string $value 
+     * @return static
+     */
+    public function withId(string $value)
+    {
+        $self = clone $this;
+        $self->id = $value;
+        return $self;
     }
 
     /**

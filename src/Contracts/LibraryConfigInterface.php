@@ -19,10 +19,10 @@ namespace Drewlabs\Libman\Contracts;
 interface LibraryConfigInterface
 {
     /**
-     * Returns the library name.
+     * return the library name.
      *
      * **Note**
-     * Libraries are composer or PHP PSR4 packages (scope/library) that ca
+     * Library for unicity should be composer or PHP PSR4 package name (scope/library) compatible
      *
      * @return string
      */
@@ -48,4 +48,20 @@ interface LibraryConfigInterface
      * @return bool
      */
     public function activated();
+
+    /**
+     * returns the library unique identifier. Query for a library
+     * instance will be done on library `id` first before falling
+     * back to legacy search on name
+     * 
+     * @return string 
+     */
+    public function id();
+
+    /**
+     * returns the library configuration repository
+     * 
+     * @return RepositoryInterface 
+     */
+    public function getConfiguration(): RepositoryInterface;
 }

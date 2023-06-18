@@ -134,7 +134,7 @@ class CreateLibraryCommand
     public function setOption(string $name, $value)
     {
 
-        $this->option[$name] = $value;
+        $this->options[$name] = $value;
         return $this;
     }
 
@@ -274,6 +274,8 @@ class CreateLibraryCommand
             $secret = ($this->promptCallback)('Please specify the API api secret. Press enter for blank', null);
         }
 
+        $config = $this->getLibraryExtaConfigurations();
+
         $libConfig = strtolower($service) === 'http' ?
             WebserviceLibraryConfig::create([
                 'name' => $name,
@@ -288,7 +290,8 @@ class CreateLibraryCommand
                 'auth' => [
                     'id' => $id,
                     'secret' => $secret
-                ]
+                ],
+                'configuration' => $config ?? []
             ]) :
             LibraryConfig::create([
                 'name' => $name,
@@ -299,7 +302,8 @@ class CreateLibraryCommand
                 'auth' => [
                     'id' => $id,
                     'secret' => $secret
-                ]
+                ],
+                'configuration' => $config ?? []
             ]);
 
         // Add the library to the libraries database
@@ -354,6 +358,27 @@ class CreateLibraryCommand
                 throw new RuntimeException('Before executing command, make sure you call onPrintError(), onPrint(), onPrompt(), onChoice(), onConfirm() methods to bind the callback for each cases');
             }
         }
+    }
+
+    /**
+     * Creates a configuration array for the library
+     * 
+     * @return array 
+     */
+    private function getLibraryExtaConfigurations()
+    {
+        $config = [];
+        $input = boolval(($this->confirmCallback)('Does the library depends on extras configuration ?'));
+        while ($input) {
+            $name = ($this->promptCallback)('Please configuration name: ');
+            $value = ($this->promptCallback)('Please enter the configuration value: ');
+            if (null === $value || (null === $name)) {
+                break;
+            }
+            $config[$name] = $value;
+            $input = boolval(($this->confirmCallback)('Do you wish to add another configuration value ?'));
+        }
+        return $config;
     }
 
     private function getRepositoryConfig()

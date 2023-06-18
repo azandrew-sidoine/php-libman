@@ -15,6 +15,8 @@ namespace Drewlabs\Libman;
 
 use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
 use Drewlabs\Libman\Traits\LibraryConfig as TraitsLibraryConfig;
+use Drewlabs\Libman\Utils\Config;
+use Drewlabs\Libman\Utils\LibaryIDFactory;
 
 /**
  * @method static \Drewlabs\Libman\LibraryConfig new(string $name, $type)
@@ -33,12 +35,18 @@ class LibraryConfig implements InstallableLibraryConfigInterface
         string $name,
         string $type = null,
         string $package = null,
-        string $factory = null
+        string $factory = null,
+        array $config = []
     ) {
         $this->name = $name;
         $this->package = $package;
         $this->factory = $factory;
         $this->type = $type;
         $this->activated = true;
+
+        //#region Added library id and configuration to extends previous implementation
+        $this->id = (new LibaryIDFactory)->create();
+        $this->configuration =  new Config($config);
+        //#region Added library id and configuration to extends previous implementation
     }
 }
