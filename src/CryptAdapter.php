@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Drewlabs\Libman;
 
 use Drewlabs\Crypt\Encrypter\Crypt;
+use Drewlabs\Crypt\Encrypter\Key;
 use Drewlabs\Libman\Contracts\CryptInterface;
 
 /**
@@ -38,7 +39,28 @@ class CryptAdapter implements CryptInterface
     public function __construct()
     {
         if (class_exists(Crypt::class)) {
-            $this->instance = Crypt::new();
+            $this->instance = new class implements CryptInterface
+            {
+
+                public function encryptString(string $value): string
+                {
+                    $key = Key::make();
+                    $scheme = sprintf("%s[%s,%s]", 'crypt', $key->__toString(), $key->cipher());
+                    return sprintf("%s%s", $scheme, Crypt::new($key->__toString(), $key->cipher())->encryptString($value));
+                }
+
+                public function decryptString(string $encrypted): string
+                {
+                    $position = strpos($encrypted, ']');
+                    if (false === $position) {
+                        return $encrypted;
+                    }
+                    $scheme = substr($encrypted, 0, $position + 1);
+                    $encoding = substr($scheme, strlen('crypt'));
+                    list($key, $cipher) = explode(',', rtrim(ltrim($encoding, '['), ']'));
+                    return Crypt::new($key, $cipher)->decryptString(substr($encrypted, strlen($scheme)));
+                }
+            };
         } else {
             $this->instance = new class implements CryptInterface
             {
