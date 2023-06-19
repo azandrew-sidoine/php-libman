@@ -1,5 +1,5 @@
 /vscode/
 /vendor/
 .DS_Store
-**/.DS_Store
+.DS_Store
 index.php
