@@ -16,7 +16,7 @@ use Drewlabs\Libman\LibraryManager;
 use Drewlabs\Libman\Tests\Stubs\ClientLibrary;
 use Drewlabs\Libman\Tests\Stubs\ClientLibraryFactory;
 use Drewlabs\Libman\WebserviceLibraryConfig;
-use Drewlabs\Libman\YAMLDefinitionsProvider;
+use Drewlabs\Libman\JsonDefinitionsProvider as Provider;
 use PHPUnit\Framework\TestCase;
 
 class LibraryManagerTest extends TestCase
@@ -30,14 +30,14 @@ class LibraryManagerTest extends TestCase
 
     public function test_library_manager_resolve_instance_method()
     {
-        $repository = $this->createYMLBasedRepository(false);
+        $repository = $this->createJSONBasedRepository(false);
         $libManager = new LibraryManager($repository);
         $instance = $libManager->resolveInstance('c9c8dba2-068c-454e-a1f5-fa711bddde41');
         $this->assertInstanceOf(ClientLibrary::class, $instance);
     }
 
-    private function createYMLBasedRepository(bool $persitable = true)
+    private function createJSONBasedRepository(bool $persitable = true)
     {
-        return new InMemoryConfigurationRepository(YAMLDefinitionsProvider::create(realpath(__DIR__.'/Stubs'), $persitable));
+        return new InMemoryConfigurationRepository(Provider::create(realpath(__DIR__.'/Stubs'), $persitable));
     }
 }

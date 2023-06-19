@@ -21,20 +21,20 @@ use Drewlabs\Libman\Contracts\WebServiceLibraryConfigInterface;
 use Drewlabs\Libman\InMemoryConfigurationRepository;
 use Drewlabs\Libman\LibraryConfig;
 use Drewlabs\Libman\Tests\Stubs\TestLibraryFactory;
-use Drewlabs\Libman\YAMLDefinitionsProvider;
+use Drewlabs\Libman\JsonDefinitionsProvider as Provider;
 use PHPUnit\Framework\TestCase;
 
 class InMemoryRepositoryTest extends TestCase
 {
     public function test_create_in_memory_repository_instance()
     {
-        $instance = $this->createYMLBasedRepository();
+        $instance = $this->createJSONBasedRepository();
         $this->assertInstanceOf(LibraryConfigurationsRepositoryInterface::class, $instance);
     }
 
     public function test_repository_select_library_returns_instance_library_interface()
     {
-        $instance = $this->createYMLBasedRepository();
+        $instance = $this->createJSONBasedRepository();
         $library = $instance->select('drewlabs/contracts');
         $this->assertInstanceOf(InstallableLibraryConfigInterface::class, $library);
         $this->assertSame('drewlabs/contracts', $library->getPackage());
@@ -47,7 +47,7 @@ class InMemoryRepositoryTest extends TestCase
 
     public function test_repository_select_library_by_id_returns_instance_library_interface()
     {
-        $instance = $this->createYMLBasedRepository();
+        $instance = $this->createJSONBasedRepository();
         /**
          * @var WebServiceLibraryConfigInterface|AuthBasedLibraryConfigInterface
          */
@@ -61,14 +61,14 @@ class InMemoryRepositoryTest extends TestCase
 
     public function test_repository_select_library_by_id_returns_null_if_library_not_exists()
     {
-        $instance = $this->createYMLBasedRepository();
+        $instance = $this->createJSONBasedRepository();
         $library = $instance->select('test/hello-world');
         $this->assertNull($library);
     }
 
     public function test_repository_add_library_add_library_to_the_list_of_libraries()
     {
-        $instance = $this->createYMLBasedRepository(false);
+        $instance = $this->createJSONBasedRepository(false);
         $instance->add(LibraryConfig::new('TestLib', 'composer', 'test/library', TestLibraryFactory::class));
         $library = $instance->select('test/library');
         $this->assertInstanceOf(LibraryConfigInterface::class, $library);
@@ -77,7 +77,7 @@ class InMemoryRepositoryTest extends TestCase
 
     public function test_repository_select_all_returns_an_iteratble()
     {
-        $instance = $this->createYMLBasedRepository(false);
+        $instance = $this->createJSONBasedRepository(false);
         $result = $instance->selectAll(static function ($item) {
             return 'composer' === $item->type;
         });
@@ -85,8 +85,8 @@ class InMemoryRepositoryTest extends TestCase
         $this->assertSame(2, iterator_count($result));
     }
 
-    private function createYMLBasedRepository(bool $persitable = true)
+    private function createJSONBasedRepository(bool $persitable = true)
     {
-        return new InMemoryConfigurationRepository(YAMLDefinitionsProvider::create(realpath(__DIR__.'/Stubs'), $persitable));
+        return new InMemoryConfigurationRepository(Provider::create(realpath(__DIR__.'/Stubs'), $persitable));
     }
 }

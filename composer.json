@@ -21,7 +21,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.0",
-        "symfony/process": ">=3.4|^4.0|^5.0|^6.1",
+        "symfony/process": "^3.4|^4.0|^5.0|^6.1",
         "composer-runtime-api": "^2.0"
     },
     "require-dev": {

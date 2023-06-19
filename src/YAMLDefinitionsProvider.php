@@ -124,7 +124,12 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
             $path = "$path".\DIRECTORY_SEPARATOR.'libman.yml';
         } elseif (@is_dir($path) && @is_file("$path".\DIRECTORY_SEPARATOR.'libman.yaml')) {
             $path = "$path".\DIRECTORY_SEPARATOR.'libman.yaml';
+        } else if (@is_dir($path) && @is_file("$path" . \DIRECTORY_SEPARATOR . 'libman')) {
+            // search path for libman wihtout .json extension
+            $path = "$path" . \DIRECTORY_SEPARATOR . 'libman';
         }
+
+        // case $path variable is still not a file path, we throw an exception
         if (!is_file($path)) {
             throw new FileNotFoundException($path);
         }
