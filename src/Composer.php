@@ -190,7 +190,7 @@ class Composer
     }
 
     /** @return string|null */
-    private static function findVendorDirectory(int $depth = 4): ?string
+    private static function findVendorDirectory(int $depth = 4)
     {
         // Assuming that the vendor directory is a top level directory having autoload.php
         // we start from the directory of the current and loop till the depth is reach
