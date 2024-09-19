@@ -11,6 +11,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
+namespace Drewlabs\Libman\Tests;
+
 use Drewlabs\Libman\ComposerLibraryInstaller;
 use Drewlabs\Libman\LibraryConfig;
 use Drewlabs\Libman\LibraryInstallerFactory;

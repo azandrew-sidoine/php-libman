@@ -11,6 +11,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
+namespace Drewlabs\Libman\Tests;
+
 use Drewlabs\Libman\Contracts\AuthBasedLibraryConfigInterface;
 use Drewlabs\Libman\Contracts\AuthCredentialsInterface;
 use Drewlabs\Libman\Contracts\InstallableLibraryConfigInterface;
@@ -87,6 +89,6 @@ class InMemoryRepositoryTest extends TestCase
 
     private function createJSONBasedRepository(bool $persitable = true)
     {
-        return new InMemoryConfigurationRepository(Provider::create(realpath(__DIR__.'/Stubs'), $persitable));
+        return new InMemoryConfigurationRepository(Provider::create(realpath(__DIR__ . '/Stubs'), $persitable));
     }
 }

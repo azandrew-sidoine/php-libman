@@ -21,32 +21,51 @@ use Symfony\Component\Process\Process;
 
 class Composer
 {
-    /**
-     * @var string
-     */
-    private static $binaryPath = '/usr/local/bin/composer';
+    /**@var string */
+    private static $binaryPath;
 
     /**
      * @var string
      */
     private static $vendorDir = '../../../';
 
+    /** @deprecated */
     public static function binary(string $path = null)
     {
-        if (null !== $path) {
+        if (!is_null($path)) {
             static::$binaryPath = $path;
         }
-        if (null === static::$vendorDir) {
-            static::$vendorDir = static::findVendorDirectory();
+        if (is_null(static::$vendorDir) && !is_null($vendor = static::findVendorDirectory())) {
+            static::$vendorDir =  $vendor;
         }
 
         return static::$binaryPath;
     }
 
-    public static function vendorDirectory(string $directoryPath = null)
+    /**
+     * Initialize composer executable path and vendor directory
+     * 
+     * @param string|null $path 
+     * @param string $vendorDir 
+     * @return void 
+     */
+    public static function init(string $path = null, string $vendorDir)
     {
-        if (null !== $directoryPath) {
-            static::$vendorDir = $directoryPath;
+        if (!is_null($path)) {
+            static::$binaryPath = $path;
+        }
+
+        $vendorDir = is_null($vendorDir) ? static::findVendorDirectory() : $vendorDir;
+        if (!is_null($vendorDir)) {
+            static::$vendorDir =  $vendorDir;
+        }
+
+    }
+
+    public static function vendorDirectory(string $path = null)
+    {
+        if (!is_null($path)) {
+            static::$vendorDir = $path;
         }
 
         return realpath(static::$vendorDir);
@@ -66,7 +85,7 @@ class Composer
         if (null === static::$vendorDir) {
             throw new \RuntimeException('Vendor directory configuration must not be null.');
         }
-        $projectDir = \dirname(realpath(static::$vendorDir));
+        $projectDir = \dirname(realpath(static::$vendorDir ?? static::findVendorDirectory() ?? '../../../'));
         if (!@is_file($composerJsonPath = realpath("$projectDir/composer.json"))) {
             throw new \RuntimeException("Missing composer.json file at the root \"$projectDir\" of the project directory. Makes sure the project is a composer based project. by running `composer init`");
         }
@@ -83,13 +102,12 @@ class Composer
         $version = $version && (false === preg_match('/\d/', $version[0])) ? substr((string)$version, 1) : $version;
         $package = $library->getPackage();
         $package = $version && !$library->isPrivate() ? "$package@^$version" : "$package";
-        if (null === static::$binaryPath) {
-            static::$binaryPath = (new ExecutableFinder())->find('composer');
+        $composerPath = is_null(static::$binaryPath) ?  (new ExecutableFinder())->find('composer') : static::$binaryPath;
+        $composerPath = $composerPath ?? '/usr/local/bin/composer'; // Use default path if none is found
+        if (!@is_file($composerPath)) {
+            throw new \RuntimeException('No composer installer found at path: ' . $composerPath);
         }
-        if (null === static::$binaryPath || !@is_file(static::$binaryPath)) {
-            throw new \RuntimeException('No composer installer found at path: ' . static::$binaryPath);
-        }
-        $commands = !@is_executable(static::$binaryPath) ? [static::$binaryPath, 'require', $package, '--optimize-autoloader', '--update-no-dev',  '--no-ansi'] : ['php', static::$binaryPath, 'require', $package, '--optimize-autoloader', '--update-no-dev',  '--no-ansi'];
+        $commands = !@is_executable($composerPath) ? [$composerPath, 'require', $package, '--optimize-autoloader', '--update-no-dev',  '--no-ansi'] : ['php', $composerPath, 'require', $package, '--optimize-autoloader', '--update-no-dev',  '--no-ansi'];
         $process = new Process($commands, $projectDir);
         $process->start();
         if ($beforeCallBack) {
@@ -146,7 +164,6 @@ class Composer
 
     /**
      * Update some property of the composer json.
-     *
      * @return void
      */
     public static function updateComposerJson(string $path, array $values)
@@ -172,10 +189,8 @@ class Composer
         }
     }
 
-    /**
-     * @return string
-     */
-    private static function findVendorDirectory(int $depth = 4)
+    /** @return string|null */
+    private static function findVendorDirectory(int $depth = 4): ?string
     {
         // Assuming that the vendor directory is a top level directory having autoload.php
         // we start from the directory of the current and loop till the depth is reach
@@ -183,10 +198,10 @@ class Composer
         // If the autoload.php is located we stop as the vendor directory is found
         $start = 1;
         $path = __DIR__;
-        $vendorDir = '../../../';
+        $vendorDir = null;
         while ($depth > $start) {
             $path = $path.'\/..\/';
-            if (is_file(realpath(sprintf('%s/autoload.php', $vendorDir)))) {
+            if (is_file(realpath(sprintf('%s/autoload.php', $path)))) {
                 // Check if the content of the file has /composer/autoload_real.php
                 $vendorDir = $path;
                 break;

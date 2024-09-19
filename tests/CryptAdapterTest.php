@@ -1,5 +1,7 @@
 <?php
 
+namespace Drewlabs\Libman\Tests;
+
 use Drewlabs\Libman\CryptAdapter;
 use PHPUnit\Framework\TestCase;
 

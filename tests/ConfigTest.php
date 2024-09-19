@@ -1,5 +1,7 @@
 <?php
 
+namespace Drewlabs\Libman\Tests;
+
 use Drewlabs\Libman\Contracts\RepositoryInterface;
 use Drewlabs\Libman\Utils\Config;
 use PHPUnit\Framework\TestCase;

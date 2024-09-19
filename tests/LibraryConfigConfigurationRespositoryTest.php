@@ -1,5 +1,7 @@
 <?php
 
+namespace Drewlabs\Libman\Tests;
+
 use Drewlabs\Libman\LibraryConfig;
 use Drewlabs\Libman\Utils\LibaryIDFactory;
 use PHPUnit\Framework\TestCase;
