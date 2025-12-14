@@ -231,7 +231,7 @@ class CreateLibraryCommand
      * @throws RuntimeException 
      * @throws ReflectionException 
      */
-    public function execute(callable $complete = null)
+    public function execute(?callable $complete = null)
     {
         $this->assertCallbacks();
         //#region Variables initialization

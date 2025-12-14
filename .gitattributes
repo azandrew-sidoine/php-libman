@@ -1,0 +1,10 @@
+/tests export-ignore
+Todo export-ignore
+.php-cs-fixer.cache export-ignore
+.php-cs-fixer.dist.php export-ignore
+.phpunit.result.cache export-ignore
+.gitattributes export-ignore
+Changelog export-ignore
+.gitignore export-ignore
+phpunit.xml export-ignore
+.php-cs-fixer.cache export-ignore

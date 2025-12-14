@@ -39,7 +39,7 @@ class AuthCredentials implements AuthCredentialsInterface
      *
      * @return void
      */
-    public function __construct(string $id = null, string $secret = null)
+    public function __construct(?string $id = null, ?string $secret = null)
     {
         $this->id = $id;
         $this->secret = $secret;

@@ -50,7 +50,7 @@ class JsonDefinitionsProvider implements LibraryDefinitionsProvider
         $this->values = $values;
     }
 
-    public static function create(string $path, bool $persistable = true, CryptInterface $crypt = null)
+    public static function create(string $path, bool $persistable = true, ?CryptInterface $crypt = null)
     {
         $crypt = $crypt ?? new CryptAdapter();
         $instance = static::newInstanceWithoutConstructor();

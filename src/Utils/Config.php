@@ -101,7 +101,8 @@ class Config implements RepositoryInterface
             $result = $this->kvPairs[trim($keys[0])] ?? null;
             while ($index < $last) {
                 if (!(($is_object = \is_object($result)) || \is_array($result))) {
-                    return null;
+                    $result = null;
+                    break;
                 }
                 $prop = trim($keys[$index]);
                 $result = !$is_object ? $result[$prop] ?? null : $result->{$prop};

@@ -30,7 +30,7 @@ class Composer
     private static $vendorDir = '../../../';
 
     /** @deprecated */
-    public static function binary(string $path = null)
+    public static function binary(?string $path = null)
     {
         if (!is_null($path)) {
             static::$binaryPath = $path;
@@ -46,10 +46,10 @@ class Composer
      * Initialize composer executable path and vendor directory
      * 
      * @param string|null $path 
-     * @param string $vendorDir 
+     * @param string|null $vendorDir 
      * @return void 
      */
-    public static function init(string $path = null, string $vendorDir)
+    public static function init(?string $path = null, ?string $vendorDir = null)
     {
         if (!is_null($path)) {
             static::$binaryPath = $path;
@@ -62,7 +62,7 @@ class Composer
 
     }
 
-    public static function vendorDirectory(string $path = null)
+    public static function vendorDirectory(?string $path = null)
     {
         if (!is_null($path)) {
             static::$vendorDir = $path;
@@ -78,9 +78,9 @@ class Composer
      */
     public static function install(
         InstallableLibraryConfigInterface $library,
-        \Closure $beforeCallBack = null,
-        \Closure $completeCallback = null,
-        \Closure $errorCallback = null
+        ?\Closure $beforeCallBack = null,
+        ?\Closure $completeCallback = null,
+        ?\Closure $errorCallback = null
     ) {
         if (null === static::$vendorDir) {
             throw new \RuntimeException('Vendor directory configuration must not be null.');

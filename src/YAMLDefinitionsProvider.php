@@ -62,7 +62,7 @@ class YAMLDefinitionsProvider implements LibraryDefinitionsProvider
      *
      * @return static
      */
-    public static function create(string $path, bool $persistable = true, CryptInterface $crypt = null)
+    public static function create(string $path, bool $persistable = true, ?CryptInterface $crypt = null)
     {
         if (!\function_exists('yaml_parse')) {
             throw new ExtensionNotLoadedException('yaml');

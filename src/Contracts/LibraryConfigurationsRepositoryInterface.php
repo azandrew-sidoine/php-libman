@@ -38,5 +38,5 @@ interface LibraryConfigurationsRepositoryInterface
      *
      * @return \Traversable
      */
-    public function selectAll(\Closure $predicate = null);
+    public function selectAll(?\Closure $predicate = null);
 }

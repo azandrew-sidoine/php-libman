@@ -22,5 +22,5 @@ interface LibraryInstaller
      *
      * @return bool|void
      */
-    public function install(InstallableLibraryConfigInterface $libraryConfig, \Closure $errorCallback = null);
+    public function install(InstallableLibraryConfigInterface $libraryConfig, ?\Closure $errorCallback = null);
 }

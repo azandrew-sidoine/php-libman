@@ -84,7 +84,7 @@ class InMemoryConfigurationRepository implements LibraryConfigurationsRepository
         return null;
     }
 
-    public function selectAll(\Closure $predicate = null)
+    public function selectAll(?\Closure $predicate = null)
     {
         if (!\is_string($predicate) && \is_callable($predicate)) {
             foreach ($this->provider->definitions() as $value) {

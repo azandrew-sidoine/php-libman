@@ -33,9 +33,9 @@ class LibraryConfig implements InstallableLibraryConfigInterface
      */
     public function __construct(
         string $name,
-        string $type = null,
-        string $package = null,
-        string $factory = null,
+        ?string $type = null,
+        ?string $package = null,
+        ?string $factory = null,
         array $config = []
     ) {
         $this->name = $name;

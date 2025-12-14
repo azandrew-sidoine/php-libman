@@ -71,7 +71,7 @@ trait LibraryConfig
     /**
      * Dictionary of dynamically invokable method defines on the current class.
      *
-     * @var array<string,\Closure>
+     * @var array<string, array<\Closure>>
      */
     private $callbacks = [];
 
@@ -217,7 +217,7 @@ trait LibraryConfig
      *
      * @return string
      */
-    public function defaultNamespace(string $namespace = null)
+    public function defaultNamespace(?string $namespace = null)
     {
         if (null !== $namespace) {
             $this->defaultNamespace = $namespace;
