@@ -21,12 +21,10 @@ use Symfony\Component\Process\Process;
 
 class Composer
 {
-    /**@var string */
+    /** @var string */
     private static $binaryPath;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private static $vendorDir = '../../../';
 
     /** @deprecated */
@@ -96,8 +94,7 @@ class Composer
                 }, array_filter(\is_array($respositories) ? $respositories : [$respositories]));
             }]);
         }
-        // Build the package with version information if the version  is propvided
-        // else return the $package name
+        // Build the package with version information if the version  is propvided else return the $package name
         $version = $library->getVersion();
         $version = $version && (false === preg_match('/\d/', $version[0])) ? substr((string)$version, 1) : $version;
         $package = $library->getPackage();
@@ -107,24 +104,36 @@ class Composer
         if (!@is_file($composerPath)) {
             throw new \RuntimeException('No composer installer found at path: ' . $composerPath);
         }
-        $commands = !@is_executable($composerPath) ? [$composerPath, 'require', $package, '--optimize-autoloader', '--update-no-dev',  '--no-ansi'] : ['php', $composerPath, 'require', $package, '--optimize-autoloader', '--update-no-dev',  '--no-ansi'];
-        $process = new Process($commands, $projectDir);
-        $process->start();
+        $dryrun_commands = @is_executable($composerPath) ? [$composerPath, 'require', $package, '--no-update', '--optimize-autoloader', '--update-no-dev',  '--no-ansi'] : ['php', $composerPath, 'require', $package, '--no-update', '--optimize-autoloader', '--update-no-dev',  '--no-ansi'];
+        $install_command = @is_executable($composerPath) ? [$composerPath, 'update', $package] : ['php', $composerPath, 'update', $package];
+        $dryrun_process = new Process($dryrun_commands, $projectDir);
+        $install_process = new Process($install_command, $projectDir);
+
         if ($beforeCallBack) {
             $beforeCallBack();
         }
-        while ($process->isRunning()) {
-            // waiting for process to finish
-        }
-        if ($process->isSuccessful() && $completeCallback) {
-            return $completeCallback($process->getOutput());
+
+        $dryrun_process->start();
+        $dryrun_process->wait();
+        if (!$dryrun_process->isSuccessful()) {
+            throw new \RuntimeException(sprintf("Failed to install package %s, %s", $package, $dryrun_process->getErrorOutput()));
         }
 
-        if (!$process->isSuccessful() && $errorCallback) {
-            return $errorCallback($process->getErrorOutput());
+        $install_process->start();
+        $install_process->wait();
+        if ($install_process->isSuccessful() && $completeCallback) {
+            return $completeCallback($install_process->getOutput());
         }
 
-        return $process->getOutput();
+        if (!$install_process->isSuccessful() && $errorCallback) {
+            return $errorCallback($install_process->getErrorOutput());
+        }
+
+        if (!$install_process->isSuccessful()) {
+            throw new \RuntimeException(sprintf("Failed to install package %s, %s", $package, $install_process->getErrorOutput()));
+        }
+
+        return $install_process->getOutput();
     }
 
     /**
@@ -134,37 +143,36 @@ class Composer
      *
      * @return string|null
      */
-    public static function resolveClassPath(string $package, string $relativeClassPath)
+    public static function resolveClassPath(string $package, string $relative_class_path)
     {
         try {
             $packagePath = realpath(InstalledVersions::getInstallPath($package));
         } catch (\OutOfBoundsException $e) {
             return null;
         }
-        $packageComposerJson = "$packagePath".\DIRECTORY_SEPARATOR.'composer.json';
-        if (!@is_file($packageComposerJson)) {
+        $composer_json = "$packagePath".\DIRECTORY_SEPARATOR.'composer.json';
+        if (!@is_file($composer_json)) {
             throw new \RuntimeException("Package $package is not a valid composer package");
         }
         // Parse the composer.json file
-        $json = json_decode(file_get_contents($packageComposerJson), true);
+        $json = json_decode(file_get_contents($composer_json), true);
         if (!isset($json['autoload']['psr-4']) || !\is_array($psr4ClassMap = $json['autoload']['psr-4'])) {
             throw new \RuntimeException("Package $package must be a valid psr4 package");
         }
-        $classPath = null;
+        $classpath = null;
         foreach ($psr4ClassMap as $namespace => $value) {
-            $path = $packagePath.(!empty($value) ? \DIRECTORY_SEPARATOR.trim($value, '/') : '').\DIRECTORY_SEPARATOR.str_replace('\\', \DIRECTORY_SEPARATOR, $relativeClassPath);
+            $path = $packagePath.(!empty($value) ? \DIRECTORY_SEPARATOR.trim($value, '/') : '').\DIRECTORY_SEPARATOR.str_replace('\\', \DIRECTORY_SEPARATOR, $relative_class_path);
             if (@is_file($path) || @is_file("$path.php")) {
-                $classPath = trim($namespace, '\\').'\\'.trim($relativeClassPath);
+                $classpath = trim($namespace, '\\').'\\'.trim($relative_class_path);
                 break;
             }
         }
 
-        return $classPath;
+        return $classpath;
     }
 
     /**
      * Update some property of the composer json.
-     * @return void
      */
     public static function updateComposerJson(string $path, array $values)
     {
