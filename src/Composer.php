@@ -42,10 +42,10 @@ class Composer
 
     /**
      * Initialize composer executable path and vendor directory
-     * 
-     * @param string|null $path 
-     * @param string|null $vendorDir 
-     * @return void 
+     *
+     * @param string|null $path
+     * @param string|null $vendorDir
+     * @return void
      */
     public static function init(?string $path = null, ?string $vendorDir = null)
     {
@@ -105,7 +105,7 @@ class Composer
             throw new \RuntimeException('No composer installer found at path: ' . $composerPath);
         }
         $dryrun_commands = @is_executable($composerPath) ? [$composerPath, 'require', $package, '--no-update', '--optimize-autoloader', '--update-no-dev',  '--no-ansi'] : ['php', $composerPath, 'require', $package, '--no-update', '--optimize-autoloader', '--update-no-dev',  '--no-ansi'];
-        $install_command = @is_executable($composerPath) ? [$composerPath, 'update', $package] : ['php', $composerPath, 'update', $package];
+        $install_command = @is_executable($composerPath) ? [$composerPath, 'update', $package, '--no-dev', '--ansi'] : ['php', $composerPath, 'update', $package, '--no-dev', '--ansi'];
         $dryrun_process = new Process($dryrun_commands, $projectDir);
         $install_process = new Process($install_command, $projectDir);
 
